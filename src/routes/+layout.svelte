@@ -1,106 +1,103 @@
 <script>
 	let showMenu = false;
 	let showFilters = false;
-
-	function toggleMenu() {
-		showMenu = !showMenu;
-	}
-
-	function toggleFilters() {
-		showFilters = !showFilters;
-	}
-	import '../app.css';
-	// Get the current year
-	const currentYear = new Date().getFullYear();
+	let authorName = '';
+	let hIndex = 0;
+	let iIndex = 0;
+	let year = 0;
+	let limit = 0;
   
-	// Generate an array of years from 2024 to 2003
+	function toggleMenu() {
+	  showMenu = !showMenu;
+	}
+  
+	function toggleFilters() {
+	  showFilters = !showFilters;
+	}
+  
+	async function fetchAuthorDetails() {
+	  const response = await fetch(`http://127.0.0.1:5173/scrape?author=${authorName}&h_index=${hIndex}&i10_index=${iIndex}&year=${year}&limit=${limit}`);
+	  const data = await response.json();
+	  console.log(data);
+	  // Display the fetched data here
+	}
+  
+	import '../app.css';
+	const currentYear = new Date().getFullYear();
 	let years = [];
 	for (let year = 2024; year >= 2003; year--) {
-		years.push(year);
+	  years.push(year);
 	}
-
-	// Initialize selected start and end years
-	let startYear = currentYear;
-	let endYear = currentYear;
-
-</script>
-
-<!-- Menu Toggle Button -->
-<!-- Menu Toggle Button 
-<button class="menu-toggle" on:click={toggleMenu} class:active={showMenu}>
+  </script>
+  
+  <!-- Menu Toggle Button -->
+  <!-- Menu Toggle Button 
+  <button class="menu-toggle" on:click={toggleMenu} class:active={showMenu}>
 	<span class="material-icons">menu</span>
-</button>-->
-
-<header>
+  </button>-->
+  
+  <header>
 	<nav class="top-nav">
-		<!-- Site Name -->
-		<div class="site-name" >
-			<a href="/" class="site-link">
-				<div class="site-logo-container">
-					<img src="./src/lib/images/logo.png" alt="Logo" class="site-logo" />
-				</div>
-				<h1>Academia Assistant</h1>
-			</a>
-		</div>
-
-		<!-- Centered Search Field with Filter Icon -->
-		<div class="search-wrapper">
-			<input type="text" placeholder="Search..." class="search-field" />
-			<button class="filter-icon" on:click={toggleFilters}>
-				<span class="material-icons">filter_list</span>
-			</button>
-			<!-- Generate and Upload Buttons -->
-			<button class="generate-button">
-				<span class="material-icons">add_circle</span>
-				<span class="button-text">Generate</span>
-			</button>
-			<button class="upload-button">
-				<span class="material-icons">upload</span>
-				<span class="button-text">Upload</span>
-			</button>
-			{#if showFilters}
-			<div class="filter-popup show">
-				<div class="filter-section">
-				  <h3>Filter Options</h3>
-				  <div id="filter-option">
-					<div class="filter-group">
-					  <label for="start-year-select">Start Year:</label>
-					  <select id="start-year-select" bind:value={startYear}>
-						{#each years as year}
-						  <option value={year}>{year}</option>
-						{/each}
-					  </select>
-					</div>
-					<div class="filter-group">
-					  <label for="end-year-select">End Year:</label>
-					  <select id="end-year-select" bind:value={endYear}>
-						{#each years as year}
-						  <option value={year}>{year}</option>
-						{/each}
-					  </select>
-					</div>
-					<div class="filter-option">
-					  <label for="h-index">H-index:</label>
-					  <input type="number" id="h-index" name="h-index" min="0" step="1">
-					</div>
-					<div class="filter-option">
-					  <label for="i-index">I-index:</label>
-					  <input type="number" id="i-index" name="i-index" min="0" step="1">
-					</div>
-					<div class="filter-option">
-					  <label for="limit">Limit:</label>
-					  <input type="number" id="limit" name="limit" min="0" step="1">
-					</div>
-				  </div>
-				  <div class="filter-buttons">
-					<button class="apply-button" on:click={() => showFilters = false}>Apply Filters</button>
-					<button class="reset-button" on:click={() => showFilters = false}>Clear Filters</button>
-				  </div>
-				</div>
+	  <!-- Site Name -->
+	  <div class="site-name" >
+		<a href="/" class="site-link">
+		  <div class="site-logo-container">
+			<img src="./src/lib/images/logo.png" alt="Logo" class="site-logo" />
+		  </div>
+		  <h1>Academia Assistant</h1>
+		</a>
+	  </div>
+  
+	  <!-- Centered Search Field with Filter Icon -->
+	  <div class="search-wrapper">
+		<input type="text" placeholder="Search..." class="search-field" bind:value={authorName} />
+		<button class="filter-icon" on:click={toggleFilters}>
+		  <span class="material-icons">filter_list</span>
+		</button>
+		<!-- Generate and Upload Buttons -->
+		<button class="generate-button" on:click={fetchAuthorDetails}>
+		  <span class="material-icons">add_circle</span>
+		  <span class="button-text">Generate</span>
+		</button>
+		<button class="upload-button">
+		  <span class="material-icons">upload</span>
+		  <span class="button-text">Upload</span>
+		</button>
+		{#if showFilters}
+		<div class="filter-popup show">
+		  <div class="filter-section">
+			<h3>Filter Options</h3>
+			<div id="filter-option">
+			  <div class="filter-group">
+				<label for="year-select">Year:</label>
+				<select id="year-select" bind:value={year}>
+				  {#each years as year}
+					<option value={year}>{year}</option>
+				  {/each}
+				</select>
 			  </div>
-				{/if}
-
+			  <div class="filter-option">
+				<label for="h-index">H-index:</label>
+				<input type="number" id="h-index" name="h-index" min="0" step="1" bind:value={hIndex}>
+			  </div>
+			  <div class="filter-option">
+				<label for="i-index">I-index:</label>
+				<input type="number" id="i-index" name="i-index" min="0" step="1" bind:value={iIndex}>
+			  </div>
+			  <div class="filter-option">
+				<label for="limit">Limit:</label>
+				<input type="number" id="limit" name="limit" min="0" step="1" bind:value={limit}>
+			  </div>
+			</div>
+			<div class="filter-buttons">
+			  <button class="apply-button" on:click={() => { fetchAuthorDetails(); showFilters = false; }}>Apply Filters</button>
+			  <button class="reset-button" on:click={() => showFilters = false}>Clear Filters</button>
+			</div>
+		  </div>
 		</div>
+		{/if}
+  
+	  </div>
 
 		<!-- Right Side Buttons -->
 		<div class="nav-buttons">

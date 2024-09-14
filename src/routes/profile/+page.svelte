@@ -1,30 +1,50 @@
 <script>
-  import { onMount } from 'svelte';
-
-  function switchTab(tab) {
+    import { onMount } from 'svelte';
+  
+    let summaryData = {
+      general_summary: '',
+      research_summaries: {}
+    };
+    let activeTab = 'general';
+  
+    async function fetchSummary() {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/generate-summary');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        summaryData = data;
+      } catch (error) {
+        console.error('Error fetching summary data:', error);
+      }
+    }
+  
+    function switchTab(tab) {
+      activeTab = tab;
       document.querySelectorAll('.tab-pane').forEach(pane => {
           pane.classList.remove('show', 'active');
       });
-
+  
       document.querySelectorAll('.list-group-item').forEach(item => {
           item.classList.remove('active');
       });
-
+  
       const tabElement = document.getElementById(tab);
       if (tabElement) {
           tabElement.classList.add('show', 'active');
       }
       const listItem = document.querySelector(`.list-group-item[onclick="switchTab('${tab}')"]`);
-    if (listItem) {
-      listItem.classList.add('active');
+      if (listItem) {
+        listItem.classList.add('active');
+      }
     }
-  }
-
-  onMount(() => {
-      // Initialize the active tab
-      switchTab('general');
-  });
-</script>
+  
+    onMount(() => {
+      fetchSummary();
+      switchTab(activeTab);
+    });
+  </script>
 
 <style>
   .profile-page {
@@ -263,76 +283,93 @@
 </style>
 
 <main class="profile-page">
-  <!-- Profile Header -->
-  <div class="profile-header">
-      <img src="../src/lib/images/banner.png" alt="Background" class="background-image img-fluid rounded"/>
-      <div class="profile-content">
-          <div class="profile-avatar">
-              <img src="../src/lib/images/avatar.png" alt="Profile Avatar" class="img-fluid"/>
-          </div>
-          <div class="profile-info">
-              <h1>Dr. XYZ</h1>
-              <p class="text-muted">Researcher in AI & Robotics</p>
-              <p class="text-muted">Location: City, Country</p>
-              <div class="button-group d-flex">
-                  <button class="btn btn-primary">Follow</button>
-                  <button class="btn btn-primary">Connect</button>
-                  <button class="btn btn-primary">Send Co-auth Request</button>
-                  
-                  <!-- More Button with Dropdown -->
-                  <div class="btn-group">
-                      <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More</button>
-                      <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="#">Export to PDF</a></li>
-                          <li><a class="dropdown-item" href="#">About this Profile</a></li>
-                      </ul>
-                  </div>
-              </div>
-          </div>
-          <div class="associated-orgs">
-              <h2>Associated Organizations</h2>
-              <ul class="list-unstyled">
-                  <li>Org 1</li>
-                  <li>Org 2</li>
-              </ul>
-          </div>
-      </div>
-  </div>
-
-  <!-- Summary and Statistics Section -->
-  <div class="row mb-4">
-      <div class="col-md-12">
-          <div class="tab-container">
-              <div class="summaries-heading">Field wise summaries</div>
-              <div class="row">
-                  <div class="col-md-3">
-                      <div class="list-group">
-                          <button class="list-group-item list-group-item-action active" on:click={() => switchTab('general')}>General</button>
-                          <button class="list-group-item list-group-item-action" on:click={() => switchTab('nlp')}>NLP</button>
-                          <button class="list-group-item list-group-item-action" on:click={() => switchTab('cv')}>CV</button>
-                          <button class="list-group-item list-group-item-action" on:click={() => switchTab('robotics')}>Robotics</button>
-                      </div>
-                  </div>
-                  <div class="col-md-9">
-                      <div class="tab-content">
-                          <div id="general" class="tab-pane show active">
-                              General Statistics Content
-                          </div>
-                          <div id="nlp" class="tab-pane">
-                              NLP Statistics Content
-                          </div>
-                          <div id="cv" class="tab-pane">
-                              CV Statistics Content
-                          </div>
-                          <div id="robotics" class="tab-pane">
-                              Robotics Statistics Content
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <img src="../src/lib/images/banner.png" alt="Background" class="background-image img-fluid rounded"/>
+        <div class="profile-content">
+            <div class="profile-avatar">
+                <img src="../src/lib/images/avatar.png" alt="Profile Avatar" class="img-fluid"/>
+            </div>
+            <div class="profile-info">
+                <h1>Dr. XYZ</h1>
+                <p class="text-muted">Researcher in AI & Robotics</p>
+                <p class="text-muted">Location: City, Country</p>
+                <div class="button-group d-flex">
+                    <button class="btn btn-primary">Follow</button>
+                    <button class="btn btn-primary">Connect</button>
+                    <button class="btn btn-primary">Send Co-auth Request</button>
+                    
+                    <!-- More Button with Dropdown -->
+                    <div class="btn-group">
+                        <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More</button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Export to PDF</a></li>
+                            <li><a class="dropdown-item" href="#">About this Profile</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="associated-orgs">
+                <h2>Associated Organizations</h2>
+                <ul class="list-unstyled">
+                    <li>Org 1</li>
+                    <li>Org 2</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+  
+    <!-- Summary and Statistics Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="tab-container">
+                <div class="summaries-heading">Field wise summaries</div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="list-group">
+                            <button class="list-group-item list-group-item-action {activeTab === 'general' ? 'active' : ''}" on:click={() => switchTab('general')}>General</button>
+                            <button class="list-group-item list-group-item-action {activeTab === 'nlp' ? 'active' : ''}" on:click={() => switchTab('nlp')}>NLP</button>
+                            <button class="list-group-item list-group-item-action {activeTab === 'cv' ? 'active' : ''}" on:click={() => switchTab('cv')}>CV</button>
+                            <button class="list-group-item list-group-item-action {activeTab === 'robotics' ? 'active' : ''}" on:click={() => switchTab('robotics')}>Robotics</button>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="tab-content">
+                            <div id="general" class="tab-pane {activeTab === 'general' ? 'show active' : ''}">
+                                {#if summaryData.general_summary}
+                                  <p>{summaryData.general_summary}</p>
+                                {:else}
+                                  <p>Loading...</p>
+                                {/if}
+                            </div>
+                            <div id="nlp" class="tab-pane {activeTab === 'nlp' ? 'show active' : ''}">
+                                {#if summaryData.research_summaries['NLP']}
+                                  <p>{summaryData.research_summaries['NLP']}</p>
+                                {:else}
+                                  <p>Loading...</p>
+                                {/if}
+                            </div>
+                            <div id="cv" class="tab-pane {activeTab === 'cv' ? 'show active' : ''}">
+                                {#if summaryData.research_summaries['CV']}
+                                  <p>{summaryData.research_summaries['CV']}</p>
+                                {:else}
+                                  <p>Loading...</p>
+                                {/if}
+                            </div>
+                            <div id="robotics" class="tab-pane {activeTab === 'robotics' ? 'show active' : ''}">
+                                {#if summaryData.research_summaries['Robotics']}
+                                  <p>{summaryData.research_summaries['Robotics']}</p>
+                                {:else}
+                                  <p>Loading...</p>
+                                {/if}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  
 
   <!-- Awards and Achievements Section -->
   <div class="row">
